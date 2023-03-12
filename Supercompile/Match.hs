@@ -21,6 +21,10 @@ newtype Match a = Match { unMatch :: Maybe a }
 instance Functor Match where
     fmap = liftM
 
+instance Applicative Match where
+    pure = return
+    (<*>) = ap
+
 instance Monad Match where
     return = Match . return
     mx >>= fxmy = Match $ unMatch mx >>= (unMatch . fxmy)

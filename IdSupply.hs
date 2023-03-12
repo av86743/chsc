@@ -1,4 +1,5 @@
 {-# LANGUAGE MagicHash #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 -- | This module provides splittable supplies for unique identifiers.
 --   The main idea gows back to L. Augustsson, M. Rittri, and D. Synek
@@ -13,6 +14,8 @@
 module IdSupply (
     Id, hashedId, IdSupply, initIdSupply, splitIdSupplyL, splitIdSupply, idFromSupply
   ) where
+
+import GHC.Generics (Generic)
 
 import GHC.Exts
 -- MCB: change to uniqueid-0.1.1: use GHC.IO rather than GHC.IOBase
@@ -31,8 +34,9 @@ newtype Id = Id { hashedId :: Int }
 -- | Supplies for unique identifiers are of type 'IdSupply' and can be
 --   split into two new supplies or yield a unique identifier.
 data IdSupply = IdSupply Int# IdSupply IdSupply
+  deriving Generic
 
-instance NFData IdSupply where
+instance NFData IdSupply where rnf x = seq x ()
     -- NB: better not rnf the infinite tree of supplies...
 
 -- | Generates a new supply of unique identifiers. The given character
@@ -63,15 +67,16 @@ splitIdSupplyL ids = ids1 : splitIdSupplyL ids2
 idFromSupply :: IdSupply -> Id
 idFromSupply (IdSupply n _ _) = Id (I# n)
 
-instance Eq Id where Id (I# x) == Id (I# y) = x ==# y
+instance Eq Id where
+  (==) (Id (I# x)) (Id (I# y)) = I# (x ==# y) /= 0
 
 instance Ord Id
  where
-  Id (I# x) <  Id (I# y) = x <#  y
-  Id (I# x) <= Id (I# y) = x <=# y
+  Id (I# x) <  Id (I# y) = I# (x <#  y) /= 0
+  Id (I# x) <= Id (I# y) = I# (x <=# y) /= 0
 
   compare (Id (I# x)) (Id (I# y)) =
-   if x ==# y then EQ else if x <# y then LT else GT
+   if I# (x ==# y) /= 0 then EQ else if I# (x <# y) /= 0 then LT else GT
 
 instance Show Id
  where

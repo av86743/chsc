@@ -1,5 +1,5 @@
 {-# LANGUAGE TupleSections, PatternGuards, ExistentialQuantification, DeriveFunctor, DeriveFoldable, DeriveTraversable, GeneralizedNewtypeDeriving,
-             TypeSynonymInstances, FlexibleInstances, IncoherentInstances, OverlappingInstances, TypeOperators, CPP #-}
+             TypeSynonymInstances, FlexibleInstances, IncoherentInstances, TypeOperators, CPP #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Utilities (
     module IdSupply,
@@ -26,8 +26,8 @@ import Control.Monad hiding (join)
 
 import qualified Data.Graph.Wrapper as G
 import Data.Maybe
-import Data.Monoid
-import Data.List
+import Data.Monoid hiding ((<>))
+import Data.List hiding (uncons)
 import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
 import qualified Data.Map as M
@@ -39,7 +39,7 @@ import qualified Data.Traversable as Traversable
 
 import Debug.Trace
 
-import Text.PrettyPrint.HughesPJClass hiding (render, int, float, char)
+import Text.PrettyPrint.HughesPJClass hiding (render, int, float, char, first)
 import qualified Text.PrettyPrint.HughesPJClass as Pretty
 
 import System.IO
@@ -680,6 +680,10 @@ instance Pretty1 Identity where
 
 instance Copointed Identity where
     extract = unI
+
+instance Applicative Identity where
+    pure = return
+    (<*>) = ap
 
 instance Monad Identity where
     return = I

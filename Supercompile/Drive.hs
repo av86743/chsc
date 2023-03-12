@@ -232,6 +232,10 @@ newtype SpecM a = SpecM { unSpecM :: SpecState -> (SpecState -> a -> SpecState) 
 instance Functor SpecM where
     fmap = liftM
 
+instance Applicative SpecM where
+  pure = return
+  (<*>) = ap
+
 instance Monad SpecM where
     return x = SpecM $ \s k -> k s x
     mx >>= fxmy = SpecM $ \s k -> unSpecM mx s (\s x -> unSpecM (fxmy x) s k)
@@ -438,6 +442,10 @@ newtype ScpM a = ScpM { unScpM :: ScpEnv -> ScpState -> (a -> ScpState -> (SCSta
 
 instance Functor ScpM where
     fmap = liftM
+
+instance Applicative ScpM where
+  pure = return
+  (<*>) = ap
 
 instance Monad ScpM where
     return x = ScpM $ \_e s k -> k x s

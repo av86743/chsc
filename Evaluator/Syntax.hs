@@ -1,5 +1,8 @@
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DeriveGeneric #-}
 module Evaluator.Syntax where
+
+import GHC.Generics (Generic)
 
 import Evaluator.Deeds
 
@@ -99,7 +102,7 @@ denormalise (deeds, h, k, (rn, qa)) = (deeds, h, k, (rn, fmap qaToAnnedTerm' qa)
 --  2. It allows (but does not require) the matcher to look into the RHS of LetBound stuff (rather than just doing nominal
 --     matching).
 data HowBound = InternallyBound | LambdaBound | LetBound
-              deriving (Eq, Show)
+              deriving (Eq, Show, Generic)
 
 instance Pretty HowBound where
     pPrint = text . show
