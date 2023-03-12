@@ -28,6 +28,8 @@ instance Applicative Match where
 instance Monad Match where
     return = Match . return
     mx >>= fxmy = Match $ unMatch mx >>= (unMatch . fxmy)
+
+instance MonadFail Match where
     --fail s = Match $ Left s
     fail s = Match $ fail s
 

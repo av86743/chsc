@@ -64,15 +64,18 @@ data SCStats = SCStats {
 instance NFData SCStats where
     rnf (SCStats a b) = rnf a `seq` rnf b
 
+instance Semigroup SCStats where
+    stats1 <> stats2 = SCStats {
+        stat_reduce_stops = stat_reduce_stops stats1 + stat_reduce_stops stats2,
+        stat_sc_stops = stat_sc_stops stats1 + stat_sc_stops stats2
+      }
+
 instance Monoid SCStats where
     mempty = SCStats {
         stat_reduce_stops = 0,
         stat_sc_stops = 0
       }
-    stats1 `mappend` stats2 = SCStats {
-        stat_reduce_stops = stat_reduce_stops stats1 + stat_reduce_stops stats2,
-        stat_sc_stops = stat_sc_stops stats1 + stat_sc_stops stats2
-      }
+    mappend = (Data.Monoid.<>)
 
 
 supercompile :: Term -> (SCStats, Term)

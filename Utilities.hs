@@ -17,6 +17,8 @@ module Utilities (
     module Text.PrettyPrint.HughesPJClass
   ) where
 
+import Prelude hiding ((<>))
+
 import IdSupply
 import StaticFlags
 
@@ -26,7 +28,6 @@ import Control.Monad hiding (join)
 
 import qualified Data.Graph.Wrapper as G
 import Data.Maybe
-import Data.Monoid hiding ((<>))
 import Data.List hiding (uncons)
 import qualified Data.IntMap as IM
 import qualified Data.IntSet as IS
@@ -623,12 +624,12 @@ fixpoint f x
    | otherwise = fixpoint f x'
   where x' = f x
 
-zipWithEqualM :: Monad m => (a -> b -> m c) -> [a] -> [b] -> m [c]
+zipWithEqualM :: (MonadFail m, Monad m) => (a -> b -> m c) -> [a] -> [b] -> m [c]
 zipWithEqualM _ []     []     = return []
 zipWithEqualM f (x:xs) (y:ys) = liftM2 (:) (f x y) (zipWithEqualM f xs ys)
 zipWithEqualM _ _ _ = fail "zipWithEqualM"
 
-zipWithEqualM_ :: Monad m => (a -> b -> m ()) -> [a] -> [b] -> m ()
+zipWithEqualM_ :: (MonadFail m, Monad m) => (a -> b -> m ()) -> [a] -> [b] -> m ()
 zipWithEqualM_ _ []     []     = return ()
 zipWithEqualM_ f (x:xs) (y:ys) = f x y >> zipWithEqualM_ f xs ys
 zipWithEqualM_ _ _ _ = fail "zipWithEqualM_"

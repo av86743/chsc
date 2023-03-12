@@ -47,8 +47,9 @@ data Entered = Once Id -- ^ The Id is a context identifier: if a binding is Ente
 instance Pretty Entered where
     pPrint = text . show
 
-instance JoinSemiLattice Entered where
-    join = plusEntered
+instance Lattice Entered where
+    (/\) = undefined
+    (\/) = plusEntered
 
 isOnce :: Entered -> Bool
 isOnce (Once _) = True
@@ -584,14 +585,14 @@ splitt (gen_kfs, gen_xs) old_deeds (cheapifyHeap old_deeds -> (deeds, Heap h (sp
                     => (Deeds -> a   -> (Deeds, EnteredEnv, b))
                     ->  Deeds -> t a -> (Deeds, EnteredEnv, t b)
         inlineHeapT f deeds b = (deeds', entered', b')
-          where ((deeds', entered'), b') = mapAccumT (\(deeds, entered) s -> case f deeds s of (deeds, entered', s) -> ((deeds, entered `join` entered'), s)) (deeds, bottom) b
+          where ((deeds', entered'), b') = mapAccumT (\(deeds, entered) s -> case f deeds s of (deeds, entered', s) -> ((deeds, entered \/ entered'), s)) (deeds, bottom) b
 
         -- Like inlineHeapT, but removes from the EnteredEnv any mention of the actual binder being analysed, so we push more stuff down
         -- NB: this would be subsumed if we found a way to push an Update frame for such a thing into its Bracketed, since then it wouldn't even be a FV
         inlineHeapWithKey :: (Deeds -> a                 -> (Deeds, EnteredEnv, b))
                           ->  Deeds -> M.Map (Out Var) a -> (Deeds, EnteredEnv, M.Map (Out Var) b)
         inlineHeapWithKey f deeds b = (deeds', entered', b')
-          where ((deeds', entered'), b') = M.mapAccumWithKey (\(deeds, entered) x' brack -> case f deeds brack of (deeds, entered', brack) -> ((deeds, entered `join` M.delete x' entered'), brack)) (deeds, bottom) b
+          where ((deeds', entered'), b') = M.mapAccumWithKey (\(deeds, entered) x' brack -> case f deeds brack of (deeds, entered', brack) -> ((deeds, entered \/ M.delete x' entered'), brack)) (deeds, bottom) b
 
         -- Inline what we can of the heap, and compute the Entered information for the resulting thing.
         -- See Note [transitiveInline and entered information] for the story about Entered information.
@@ -635,7 +636,7 @@ splitt (gen_kfs, gen_xs) old_deeds (cheapifyHeap old_deeds -> (deeds, Heap h (sp
         --     However, I've revised my opinion and decided to add all candidate variables every time. This is because if we inline a binding
         --     into a context where it is still evaluated Once, anything it refers to is still evaluated Once. So the existing Entered information
         --     does not appear to be invalidated when we decide not to residualise an additional binding.
-        entered    = entered_focus `join` entered_heap
+        entered    = entered_focus \/ entered_heap
         safe_not_resid_xs' = -- traceRender ("candidates", onces, must_resid_xs, not_resid_xs, candidates S.\\ not_resid_xs) $
                              safe_not_resid_xs `S.union` (onces S.\\ must_resid_xs)
           where onces = S.filter (\x' -> maybe True isOnce (M.lookup x' entered)) bound_xs

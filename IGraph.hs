@@ -1,25 +1,28 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 module IGraph (Color, subgraphIsomorphisms) where
-
+{-
 import Utilities
 
 import Control.Exception (bracket)
 
 import Data.Array
 import Data.IORef
+ -}
 import qualified Data.Map as M
-
+{-
 import Foreign.C
 import Foreign.Marshal
 import Foreign.Ptr
-
+ -}
 import qualified Data.Graph.Wrapper as G
-import qualified Data.Graph.Wrapper.Internal as G
+-- import qualified Data.Graph.Wrapper.Internal as G
 
 
 type Color = Int
 
 subgraphIsomorphisms :: Ord a => G.Graph a Color -> G.Graph a Color -> [M.Map a a]
+subgraphIsomorphisms = undefined
+{-
 subgraphIsomorphisms g_smaller g_larger = [M.fromList [(i_smaller, G.indexGVertexArray g_larger ! n_larger) | (i_smaller, n_larger) <- fromJust (elems (G.indexGVertexArray g_smaller) `zipEqual` raw_subiso)] | raw_subiso <- raw_subisos]
   where
     raw_subisos = subgraphIsomorphisms' [(G.gVertexVertexArray g_smaller ! m, ns) | (m, ns) <- assocs (G.graph g_smaller)]
@@ -57,3 +60,4 @@ subgraphIsomorphisms' g_smaller g_larger
                                                          (genericLength g_larger)  larger_colors  (genericLength (concatMap snd g_larger))  larger_edges
                                                          callback
                            readIORef isos
+ -}

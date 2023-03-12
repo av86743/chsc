@@ -1,4 +1,4 @@
-{-# LANGUAGE GeneralizedNewtypeDeriving, PatternGuards, NoMonoPatBinds #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving, PatternGuards, NoMonoLocalBinds #-}
 module Evaluator.FreeVars (
     inFreeVars,
     heapBindingFreeVars,

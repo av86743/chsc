@@ -17,8 +17,9 @@ import qualified Data.Set as S
 data Occurs = Once | Many
             deriving (Eq)
 
-instance JoinSemiLattice Occurs where
-    join _ _ = Many
+instance Lattice Occurs where
+    (/\) _ _ = undefined
+    (\/) _ _ = Many
 
 
 prettify :: FVedTerm -> FVedTerm
@@ -36,12 +37,12 @@ prettifyTerm' ids inline (rn, e) = case e of
     Var x -> prettifyVar inline (rn, x)
     Value v -> (occurs, e')
       where (occurs, e') = prettifyValue' ids inline (rn, v)
-    App e x -> (M.insertWith join x' Many occurs, App e' x')
+    App e x -> (M.insertWith (\/) x' Many occurs, App e' x')
       where x' = rename rn x
             (occurs, e') = prettifyTerm ids inline (rn, e)
     PrimOp pop es -> (joins occurss, PrimOp pop es')
       where (occurss, es') = unzip $ map (\e -> prettifyTerm ids inline (rn, e)) es
-    Case e alts -> (e_occurs `join` joins alt_occurss, Case e' alts')
+    Case e alts -> (e_occurs \/ joins alt_occurss, Case e' alts')
       where (e_occurs, e') = prettifyTerm ids inline (rn, e)
             (alt_occurss, alts') = unzip $ map (\alt -> prettifyAlt ids inline (rn, alt)) alts
     LetRec xes e -> (xs' `deleteListMap` occurs', LetRec xes'_leave e')
@@ -50,7 +51,7 @@ prettifyTerm' ids inline (rn, e) = case e of
             inline' = (xs' `deleteListMap` inline) `M.union` M.fromList xes'_inline
             (es_occurs, es') = unzip $ map (\in_e -> prettifyTerm ids' inline' in_e) in_es
             (e_occurs, e') = prettifyTerm ids' inline' (rn', e)
-            occurs' = e_occurs `join` joins es_occurs
+            occurs' = e_occurs \/ joins es_occurs
             
             -- Inline those bindings that occurred syntactically exactly once (or were dead):
             (xes'_inline, xes'_leave) = partition (\(x', _e') -> maybe True (== Once) (x' `M.lookup` occurs')) (xs' `zip` es')

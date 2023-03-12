@@ -7,6 +7,8 @@ module Renaming (
     renameBinder, renameBinders
   ) where
 
+import Prelude hiding ((<>))
+
 import Name
 import Utilities
 

@@ -2,6 +2,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Core.Syntax where
 
+import Prelude hiding ((<>))
+
 import GHC.Generics (Generic)
 import Core.Data (DataCon)
 

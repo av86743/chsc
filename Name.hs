@@ -3,6 +3,8 @@ module Name (
     freshName, freshNames
   ) where
 
+import Prelude hiding ((<>))
+
 import Utilities
 
 import Data.Char

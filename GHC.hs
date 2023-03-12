@@ -15,7 +15,7 @@ import System.Process
 
 
 gHC :: FilePath
-gHC = "/Users/mbolingbroke/Programming/Checkouts/ghc.head/inplace/bin/ghc-stage2"
+gHC = "ghc"
 
 
 termToHaskell :: Term -> String
@@ -27,7 +27,7 @@ termToHaskellBinding name e = (name ++ " = " ++ l) : map (replicate indent ' ' +
         (l:ls) = lines $ termToHaskell e
 
 languageLine :: String
-languageLine = "{-# LANGUAGE ExtendedDefaultRules, NoMonoPatBinds #-}"
+languageLine = "{-# LANGUAGE ExtendedDefaultRules, NoMonoLocalBinds #-}"
 
 testingModule :: String -> Term -> Term -> String
 testingModule wrapper e test_e = unlines $

@@ -2,6 +2,8 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Evaluator.Syntax where
 
+import Prelude hiding ((<>))
+
 import GHC.Generics (Generic)
 
 import Evaluator.Deeds
@@ -194,7 +196,7 @@ releaseHeapBindingDeeds :: Deeds -> HeapBinding -> Deeds
 releaseHeapBindingDeeds deeds hb = deeds + heapBindingSize hb
 
 releasePureHeapDeeds :: Deeds -> PureHeap -> Deeds
-releasePureHeapDeeds = M.fold (flip releaseHeapBindingDeeds)
+releasePureHeapDeeds = M.foldr (flip releaseHeapBindingDeeds)
 
 releaseStackDeeds :: Deeds -> Stack -> Deeds
 releaseStackDeeds = foldl' (\deeds kf -> deeds + stackFrameSize (tagee kf))
